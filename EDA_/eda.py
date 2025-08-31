@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import OrdinalEncoder
 
 def eda(file_path:str):
     print("Hello we are getting started")
@@ -71,14 +72,17 @@ def eda(file_path:str):
 
 #Correlation using spearman correlation
     print("Starting correlation")
-    # if 'patient id' in df.columns:
-    # df.drop('patient id').columns
-    # print(df.columns)
-    # df_corr=df.drop('patient id', axis=1).columns
     df_corr=df.copy()
-    df.corr['level']=df.corr(['level']).map({'Low':0,'Medium':1,'High':2})
-    correlation_matriz=df_corr.corr()
-    sns.heatmap(correlation_matriz,annot=True,cmap='coolwarm',linewidths=5)
+    if 'patient id' in df_corr.columns:
+        df_corr = df_corr.drop('patient id', axis=1)
+
+    ord_enc = OrdinalEncoder(categories=[['Low', 'Medium', 'High']])
+    df_corr[['level']] = ord_enc.fit_transform(df_corr[['level']])
+
+    correlation_matrix = df_corr.corr(method='spearman')
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+    plt.title('Spearman Correlation Matrix')
+    plt.tight_layout()
     plt.savefig('correlation.png')
     # else:
     #     print('pateint id is not dropped')
