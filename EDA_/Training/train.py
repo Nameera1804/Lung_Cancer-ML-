@@ -10,18 +10,23 @@ import pandas as pd
 #load the data
 def load_data(file_path:str):
     df=pd.read_excel(file_path)
-    df.columns.str.lower()
+    df.columns=df.columns.str.lower()
     print(df.columns)
     return df.drop(columns=['patient id'])
 print("data loaded succesfully")
 
 #preprocess
-def preprocess_data(df,target_col='level'):
-    encoded=LabelEncoder()
-    df[target_col]=encoded.fit_transform(df[target_col])
-    X=df.drop(colums=[target_col])
-    y=df[target_col]
-    return X, y,encoded
+def preprocess_data(df, target_col='level'):
+    encoded = LabelEncoder()
+    
+    # Encode the target column 
+    df[target_col] = encoded.fit_transform(df[target_col])
+    
+    # Split into features and target
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+    
+    return X, y, encoded
 
 def main():
     file_path="C:/Users/nameera.zuha/OneDrive - SLK SOFTWARE PRIVATE LIMITED/Documents/Lung_Cancer_classif/raw_data/cancer patient data sets.xlsx"
