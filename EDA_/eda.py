@@ -4,16 +4,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import OrdinalEncoder
 
-def eda(file_path:str):
+def load_data(file_path:str):
     print("Hello we are getting started")
 # load the data
     data=pd.read_excel(file_path)
     df=pd.DataFrame(data)
     print(type(df))
-    if isinstance(df, pd.Series):
-        df = df.to_frame()
-    else:
-        print("Data loaded")
+    print("Loaded successfully")
 
 #printing first 5 and last rows (PPP)
     print(df.head())
@@ -30,14 +27,17 @@ def eda(file_path:str):
     if 'patient id' in df.columns:
         df=df.drop( 'patient id',axis=1)
         print('patient id dropped')
+    return df
 
 #Analysis using histogram 
 #univariate to identify level distribution
+def uni_analysis(df:pd.DataFrame):
     plt.figure(figsize=(9,7))
     sns.countplot(x='level',data=df,order=['Low','Medium','High'] ,palette='viridis')
     plt.title('distribution of level')
     plt.ylabel=('No. of Patients')
     plt.savefig('level_distribution.png')
+    plt.close()
 
 # # we can also do this 
 #     print(df.level.value_counts())
@@ -56,9 +56,11 @@ def eda(file_path:str):
     plt.tight_layout()
     plt.savefig('feature distribution.png')
     print('Saved feature distribution')
+    plt.close()
 
 #How features are distributed with Target (level)
     # features1=df.drop('patient id',axis=1).columns
+def bivariate_analysis(df:pd.DataFrame):
     plt.figure(figsize=(30,40))
     for i,column in enumerate(df):
         plt.subplot(8,3,i+1)
@@ -68,29 +70,38 @@ def eda(file_path:str):
         # plt.ylabel('')
     plt.tight_layout()
     plt.savefig('feature vs target .png')
+    plt.close()
     print('Saved feature vs target distribution')
 
 #Correlation using spearman correlation
+def multivariate_analysis(df:pd.DataFrame):
     print("Starting correlation")
     df_corr=df.copy()
     if 'patient id' in df_corr.columns:
         df_corr = df_corr.drop('patient id', axis=1)
 
-    ord_enc = OrdinalEncoder(categories=[['Low', 'Medium', 'High']])
-    df_corr[['level']] = ord_enc.fit_transform(df_corr[['level']])
-
+    # ord_enc = OrdinalEncoder(categories=[['Low', 'Medium', 'High']])
+    # df_corr[['level']] = ord_enc.fit_transform(df_corr[['level']])
+    plt.figure(figsize=(30,40))
+    df_corr['level']=df_corr['level'].map({'Low':0,'Medium':1,'High':2})
     correlation_matrix = df_corr.corr(method='spearman')
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
     plt.title('Spearman Correlation Matrix')
     plt.tight_layout()
     plt.savefig('correlation.png')
+    plt.show()
+    print("saved")
     # else:
     #     print('pateint id is not dropped')
 
+def main():
+    file_path="C:/Users/nameera.zuha/OneDrive - SLK SOFTWARE PRIVATE LIMITED/Documents/Lung_Cancer_classif/raw_data/cancer patient data sets.xlsx"
+    cleaned_df=load_data(file_path)
+    uni_analysis(cleaned_df)
+    bivariate_analysis(cleaned_df)
+    multivariate_analysis(cleaned_df)
+    print("EDA Complete")
 
-
-
-
-
-eda("C:/Users/nameera.zuha/OneDrive - SLK SOFTWARE PRIVATE LIMITED/Documents/Lung_Cancer_classif/raw_data/cancer patient data sets.xlsx")
+if __name__=='__main__':
+    main()
 
